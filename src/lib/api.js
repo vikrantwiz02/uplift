@@ -11,8 +11,10 @@ class ApiClient {
       'Content-Type': 'application/json',
     };
 
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
+    // Always get the most current token from localStorage or instance
+    const currentToken = this.token || localStorage.getItem('auth_token');
+    if (currentToken) {
+      headers.Authorization = `Bearer ${currentToken}`;
     }
 
     return headers;

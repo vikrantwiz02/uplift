@@ -50,7 +50,7 @@ Your role is to be a supportive companion, offering guidance, encouragement, and
 
     // Call Gemini API
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
       {
         contents: [{
           parts: [{
@@ -78,7 +78,7 @@ Your role is to be a supportive companion, offering guidance, encouragement, and
     const aiResponse = response.data.candidates[0].content.parts[0].text;
 
     res.json({
-      message: aiResponse,
+      response: aiResponse,
       timestamp: new Date().toISOString()
     });
 

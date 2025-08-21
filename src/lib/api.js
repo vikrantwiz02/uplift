@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://uplift-iota.vercel.app/api';
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
 
 class ApiClient {
   constructor(baseURL) {

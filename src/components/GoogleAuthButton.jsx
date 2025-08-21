@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 const GoogleAuthButton = ({ children = "Continue with Google", ...props }) => {
   const handleGoogleAuth = () => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://uplift-iota.vercel.app/api';
     window.location.href = `${apiUrl}/auth/google`;
   };
 

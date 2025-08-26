@@ -7,18 +7,18 @@ import passport from 'passport';
 // Load environment variables
 dotenv.config();
 
-import { connectDatabase } from '../server/src/config/database.js';
-import '../server/src/config/passport.js';
+import { connectDatabase } from '../../server/src/config/database.js';
+import '../../server/src/config/passport.js';
 
 // Import routes
-import authRoutes from '../server/src/routes/auth.js';
-import moodRoutes from '../server/src/routes/mood.js';
-import journalRoutes from '../server/src/routes/journal.js';
-import meditationRoutes from '../server/src/routes/meditation.js';
-import goalsRoutes from '../server/src/routes/goals.js';
-import communityRoutes from '../server/src/routes/community.js';
-import crisisRoutes from '../server/src/routes/crisis.js';
-import aiRoutes from '../server/src/routes/ai.js';
+import authRoutes from '../../server/src/routes/auth.js';
+import moodRoutes from '../../server/src/routes/mood.js';
+import journalRoutes from '../../server/src/routes/journal.js';
+import meditationRoutes from '../../server/src/routes/meditation.js';
+import goalsRoutes from '../../server/src/routes/goals.js';
+import communityRoutes from '../../server/src/routes/community.js';
+import crisisRoutes from '../../server/src/routes/crisis.js';
+import aiRoutes from '../../server/src/routes/ai.js';
 
 const app = express();
 
@@ -49,20 +49,20 @@ app.use(passport.session());
 // Connect to database
 connectDatabase();
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
+// API Routes
+app.use('/auth', authRoutes);
+app.use('/mood', moodRoutes);
+app.use('/journal', journalRoutes);
+app.use('/meditation', meditationRoutes);
+app.use('/goals', goalsRoutes);
+app.use('/community', communityRoutes);
+app.use('/crisis', crisisRoutes);
+app.use('/ai', aiRoutes);
+
+// Health check
+app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Uplift API is running' });
 });
-
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/mood', moodRoutes);
-app.use('/api/journal', journalRoutes);
-app.use('/api/meditation', meditationRoutes);
-app.use('/api/goals', goalsRoutes);
-app.use('/api/community', communityRoutes);
-app.use('/api/crisis', crisisRoutes);
-app.use('/api/ai', aiRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -70,5 +70,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-// Export for Vercel
-export default app;
+export default (req, res) => {
+  return app(req, res);
+};

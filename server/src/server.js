@@ -80,7 +80,7 @@ app.use('*', (req, res) => {
 // Start server
 const startServer = async () => {
   try {
-    // await connectDatabase(); // Temporarily disabled for Google OAuth testing
+    await connectDatabase(); // Enable MongoDB connection
     
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);

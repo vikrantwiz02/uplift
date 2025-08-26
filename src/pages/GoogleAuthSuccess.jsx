@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authManager } from '@/lib/auth';
+import { apiClient } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 const GoogleAuthSuccess = () => {
@@ -27,8 +28,11 @@ const GoogleAuthSuccess = () => {
       try {
         const user = JSON.parse(decodeURIComponent(userParam));
         
-        // Store the token
+        // Store the token in localStorage
         localStorage.setItem('auth_token', token);
+        
+        // Set the token in API client
+        apiClient.setToken(token);
         
         // Update auth state
         authManager.setState({
@@ -60,7 +64,7 @@ const GoogleAuthSuccess = () => {
       });
       navigate('/auth');
     }
-  }, [searchParams, navigate, authManager, toast]);
+  }, [searchParams, navigate, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

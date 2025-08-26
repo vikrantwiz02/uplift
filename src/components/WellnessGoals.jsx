@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Target, Plus, Check, Trash2, Edit } from "lucide-react";
 import { apiClient } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 const WellnessGoals = ({ compact = false }) => {
@@ -17,17 +18,21 @@ const WellnessGoals = ({ compact = false }) => {
   const [targetFrequency, setTargetFrequency] = useState('1');
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { isAuthenticated } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchGoals();
-  }, []);
+    if (isAuthenticated) {
+      fetchGoals();
+    }
+  }, [isAuthenticated]);
 
   const fetchGoals = async () => {
     try {
       const data = await apiClient.getWellnessGoals();
       setGoals(data);
     } catch (error) {
+      console.error('Failed to fetch goals:', error);
       toast({
         title: "Error",
         description: "Failed to fetch wellness goals",
@@ -35,6 +40,11 @@ const WellnessGoals = ({ compact = false }) => {
       });
     }
   };
+
+  // Don't render anything if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

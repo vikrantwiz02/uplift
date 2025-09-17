@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
 
 class ApiClient {
   constructor(baseURL) {
@@ -11,8 +12,10 @@ class ApiClient {
       'Content-Type': 'application/json',
     };
 
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
+    // Always get the most current token from localStorage or instance
+    const currentToken = this.token || localStorage.getItem('auth_token');
+    if (currentToken) {
+      headers.Authorization = `Bearer ${currentToken}`;
     }
 
     return headers;
@@ -238,4 +241,4 @@ class ApiClient {
   }
 }
 
-export const apiClient = new ApiClient(API_BASE_URL);
+export const apiClient = new ApiClient(apiUrl);

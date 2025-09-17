@@ -116,7 +116,10 @@ const Dashboard = () => {
         <div className="space-y-6">
           {activeTab === 'overview' && (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setActiveTab('mood')}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Brain className="h-5 w-5 text-purple-500" />
@@ -128,7 +131,10 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setActiveTab('meditation')}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Calendar className="h-5 w-5 text-blue-500" />
@@ -140,7 +146,10 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setActiveTab('goals')}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Target className="h-5 w-5 text-green-500" />
@@ -152,7 +161,10 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setActiveTab('ai-chat')}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Bot className="h-5 w-5 text-blue-500" />
@@ -164,7 +176,10 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setActiveTab('community')}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Users className="h-5 w-5 text-orange-500" />

@@ -9,7 +9,7 @@ import { apiClient } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 
-const MeditationTimer = ({ compact = false }) => {
+const MeditationTimer = ({ compact = false, onNavigate }) => {
   const [selectedDuration, setSelectedDuration] = useState('5');
   const [selectedType, setSelectedType] = useState('mindfulness');
   const [timeLeft, setTimeLeft] = useState(0);
@@ -164,7 +164,17 @@ const MeditationTimer = ({ compact = false }) => {
         
         <div className="flex space-x-2">
           {!isActive && timeLeft === 0 && (
-            <Button onClick={startTimer} size="sm" className="flex-1">
+            <Button 
+              onClick={() => {
+                if (onNavigate) {
+                  onNavigate();
+                } else {
+                  startTimer();
+                }
+              }} 
+              size="sm" 
+              className="flex-1"
+            >
               <Play className="h-4 w-4 mr-2" />
               Start
             </Button>

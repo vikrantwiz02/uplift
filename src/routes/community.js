@@ -12,6 +12,6 @@ router.use(authenticate);
 router.post('/', createCommunityPost);
 router.put('/:id', updateCommunityPost);
 router.delete('/:id', deleteCommunityPost);
-router.patch('/:id/like', likeCommunityPost);
+router.post('/:id/like', likeCommunityPost);
 
 export default router;

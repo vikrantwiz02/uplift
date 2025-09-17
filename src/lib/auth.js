@@ -49,9 +49,9 @@ class AuthManager {
     return this.state;
   }
 
-  async signUp(email, password, fullName) {
+  async signUp(name, email, password) {
     try {
-      const response = await apiClient.register({ email, password, fullName });
+      const response = await apiClient.register({ name, email, password });
       
       if (response.token) {
         apiClient.setToken(response.token);

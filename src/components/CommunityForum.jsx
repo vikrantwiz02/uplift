@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 
 
-const CommunityForum = ({ compact = false }) => {
+const CommunityForum = ({ compact = false, onNavigate }) => {
   const [posts, setPosts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
@@ -22,6 +22,9 @@ const CommunityForum = ({ compact = false }) => {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [showReplies, setShowReplies] = useState({});
+  const [replyContent, setReplyContent] = useState('');
   const { toast } = useToast();
 
   const categories = [
@@ -119,7 +122,7 @@ const CommunityForum = ({ compact = false }) => {
     setContent(post.content);
     setCategory(post.category);
     setIsAnonymous(post.isAnonymous);
-    setEditingId(post.id);
+    setEditingId(post._id || post.id);
     setShowForm(true);
   };
 
@@ -157,6 +160,52 @@ const CommunityForum = ({ compact = false }) => {
     }
   };
 
+  const handleReply = (post) => {
+    setReplyingTo(post._id || post.id);
+    setReplyContent('');
+  };
+
+  const submitReply = async (postId) => {
+    if (!replyContent.trim()) {
+      toast({
+        title: "Reply cannot be empty",
+        description: "Please enter a reply message.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // For now, we'll create a new post as a reply (since we don't have nested replies in the backend)
+      await apiClient.createCommunityPost({
+        title: `Re: ${posts.find(p => (p._id || p.id) === postId)?.title || 'Discussion'}`,
+        content: replyContent.trim(),
+        category: posts.find(p => (p._id || p.id) === postId)?.category || 'general',
+        isAnonymous: false,
+      });
+
+      toast({
+        title: "Reply posted!",
+        description: "Your reply has been added as a new discussion.",
+      });
+
+      setReplyingTo(null);
+      setReplyContent('');
+      fetchPosts();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const cancelReply = () => {
+    setReplyingTo(null);
+    setReplyContent('');
+  };
+
   const getCategoryStyle = (categoryValue) => {
     const category = categories.find(c => c.value === categoryValue);
     return category?.color || 'bg-gray-100 text-gray-800';
@@ -173,7 +222,13 @@ const CommunityForum = ({ compact = false }) => {
             <p className="text-sm text-gray-600">No recent posts</p>
             <Button 
               size="sm" 
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                if (onNavigate) {
+                  onNavigate();
+                } else {
+                  setShowForm(true);
+                }
+              }}
               className="mt-2"
             >
               Create Post
@@ -181,7 +236,7 @@ const CommunityForum = ({ compact = false }) => {
           </div>
         ) : (
           recentPosts.map((post) => (
-            <div key={post.id} className="p-3 bg-gray-50 rounded-lg">
+            <div key={post._id || post.id} className="p-3 bg-gray-50 rounded-lg">
               <div className="flex items-start justify-between mb-2">
                 <h4 className="font-medium text-sm line-clamp-1">{post.title}</h4>
                 <Badge className={`text-xs ${getCategoryStyle(post.category)}`}>
@@ -192,9 +247,9 @@ const CommunityForum = ({ compact = false }) => {
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <div className="flex items-center space-x-2">
                   <Heart className="h-3 w-3" />
-                  <span>{post.likes_count}</span>
+                  <span>{post.likesCount || post.likes_count || 0}</span>
                 </div>
-                <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
+                <span>{formatDistanceToNow(new Date(post.createdAt || post.created_at), { addSuffix: true })}</span>
               </div>
             </div>
           ))
@@ -321,7 +376,7 @@ const CommunityForum = ({ compact = false }) => {
           </Card>
         ) : (
           posts.map((post) => (
-            <Card key={post.id} className="hover:shadow-md transition-shadow">
+            <Card key={post._id || post.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -337,7 +392,7 @@ const CommunityForum = ({ compact = false }) => {
                         </p>
                         <div className="flex items-center space-x-2 text-xs text-gray-500">
                           <Clock className="h-3 w-3" />
-                          <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
+                          <span>{formatDistanceToNow(new Date(post.createdAt || post.created_at), { addSuffix: true })}</span>
                         </div>
                       </div>
                     </div>
@@ -359,7 +414,7 @@ const CommunityForum = ({ compact = false }) => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDelete(post.id)}
+                      onClick={() => handleDelete(post._id || post.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -374,15 +429,16 @@ const CommunityForum = ({ compact = false }) => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleLike(post.id)}
+                      onClick={() => handleLike(post._id || post.id)}
                       className="flex items-center space-x-1"
                     >
                       <Heart className="h-4 w-4" />
-                      <span>{post.likesCount}</span>
+                      <span>{post.likesCount || post.likes_count || 0}</span>
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={() => handleReply(post)}
                       className="flex items-center space-x-1"
                     >
                       <MessageCircle className="h-4 w-4" />
@@ -390,12 +446,41 @@ const CommunityForum = ({ compact = false }) => {
                     </Button>
                   </div>
                   
-                  {post.updatedAt !== post.createdAt && (
+                  {(post.updatedAt || post.updated_at) !== (post.createdAt || post.created_at) && (
                     <p className="text-xs text-gray-500">
-                      Edited {formatDistanceToNow(new Date(post.updatedAt), { addSuffix: true })}
+                      Edited {formatDistanceToNow(new Date(post.updatedAt || post.updated_at), { addSuffix: true })}
                     </p>
                   )}
                 </div>
+
+                {/* Reply Form */}
+                {replyingTo === (post._id || post.id) && (
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="space-y-3">
+                      <Textarea
+                        placeholder="Write your reply..."
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        rows={3}
+                      />
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          onClick={() => submitReply(post._id || post.id)}
+                        >
+                          Post Reply
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={cancelReply}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))

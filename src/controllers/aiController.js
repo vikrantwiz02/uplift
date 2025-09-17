@@ -10,7 +10,22 @@ export const aiChat = async (req, res) => {
 
     const geminiApiKey = process.env.GEMINI_API_KEY;
     if (!geminiApiKey) {
-      return res.status(500).json({ error: 'AI service is currently unavailable' });
+      // Provide a helpful mock response when API key is not configured
+      const mockResponses = [
+        "I'm here to help with your wellness journey! While I'm in demo mode right now, I'd love to support you. Here are some quick tips: Take a few deep breaths, practice gratitude, and remember that it's okay to take things one step at a time. How are you feeling today?",
+        "Thank you for reaching out! I'm currently in demo mode, but I want you to know that your mental health matters. Consider trying a 5-minute mindfulness exercise: focus on your breathing and let yourself be present in this moment. What's something positive you can focus on right now?",
+        "I appreciate you connecting with me! Even though I'm in demo mode, I'm here in spirit. Remember that taking care of your mental health is a brave and important step. Try writing down three things you're grateful for today. Is there anything specific on your mind you'd like to talk about?",
+        "Hello! I'm in demo mode currently, but I want to remind you that you're not alone in your wellness journey. A simple tip: try the 4-7-8 breathing technique (inhale for 4, hold for 7, exhale for 8). What brings you here today?"
+      ];
+      
+      const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+      
+      return res.json({
+        response: randomResponse,
+        message: randomResponse, // Keep both for compatibility
+        timestamp: new Date().toISOString(),
+        isDemoMode: true
+      });
     }
 
     // Enhanced system prompt for better mental health support
@@ -78,7 +93,8 @@ Your role is to be a supportive companion, offering guidance, encouragement, and
     const aiResponse = response.data.candidates[0].content.parts[0].text;
 
     res.json({
-      message: aiResponse,
+      response: aiResponse,
+      message: aiResponse, // Keep both for compatibility
       timestamp: new Date().toISOString()
     });
 

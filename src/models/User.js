@@ -2,11 +2,6 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
-  googleId: {
-    type: String,
-    unique: true,
-    sparse: true
-  },
   email: {
     type: String,
     required: true,
@@ -16,10 +11,12 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
+    required: true,
     minlength: 6
   },
   name: {
     type: String,
+    required: true,
     trim: true
   },
   username: {
@@ -29,14 +26,12 @@ const userSchema = new mongoose.Schema({
     trim: true
   },
   avatar: {
-    type: String
+    type: String,
+    default: null
   },
   isVerified: {
     type: Boolean,
-    default: false
-  },
-  emailConfirmationToken: {
-    type: String
+    default: true
   },
   passwordResetToken: {
     type: String
@@ -48,9 +43,9 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Hash password before saving (only for non-Google users)
+// Hash password before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password') || !this.password) return next();
+  if (!this.isModified('password')) return next();
   
   try {
     const salt = await bcrypt.genSalt(12);
@@ -63,7 +58,6 @@ userSchema.pre('save', async function(next) {
 
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 

@@ -17,5 +17,9 @@ export const useAuth = () => {
     updateProfile: authManager.updateProfile.bind(authManager),
     forgotPassword: authManager.forgotPassword.bind(authManager),
     resetPassword: authManager.resetPassword.bind(authManager),
+    // Add aliases for common naming patterns
+    register: authManager.signUp.bind(authManager),
+    login: authManager.signIn.bind(authManager),
+    logout: authManager.signOut.bind(authManager),
   };
 };

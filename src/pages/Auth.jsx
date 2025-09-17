@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import GoogleAuthButton from "@/components/GoogleAuthButton";
+
 import { Heart, Mail, Lock, User, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -17,9 +17,8 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user, isAuthenticated, signUp, signIn, signOut, forgotPassword, resetPassword } = useAuth();
+  const { user, isAuthenticated, signUp, signIn, forgotPassword, resetPassword } = useAuth();
   const [resetEmailSent, setResetEmailSent] = useState(false);
-  const [verificationEmailSent, setVerificationEmailSent] = useState(false);
   const [passwordResetSuccess, setPasswordResetSuccess] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -27,34 +26,33 @@ const Auth = () => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (user.emailConfirmed) {
-        navigate('/dashboard');
-      } else {
-        setMode('verify-email');
-        toast({
-          title: "Email verification required",
-          description: "Please check your email and click the verification link to continue.",
-          variant: "default",
-        });
-      }
+      navigate('/dashboard');
     }
-  }, [isAuthenticated, user, navigate, toast]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     setLoading(true);
 
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure both passwords are the same.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await signUp(email, password, fullName);
+      const response = await signUp(fullName, email, password);
       
-      if (response.user && !response.user.emailConfirmed) {
-        setVerificationEmailSent(true);
-        setMode('verify-email');
-        toast({
-          title: "Account created successfully!",
-          description: "Please check your email and click the verification link to activate your account.",
-        });
-      }
+      toast({
+        title: "Account created successfully!",
+        description: "Welcome to Uplift! You are now logged in.",
+      });
+      
+      // User will be redirected automatically by useEffect
     } catch (error) {
       toast({
         title: "Error creating account",
@@ -73,19 +71,12 @@ const Auth = () => {
     try {
       const response = await signIn(email, password);
       
-      if (response.user?.emailConfirmed) {
-        toast({
-          title: "Welcome back!",
-          description: "You've been signed in successfully.",
-        });
-      } else {
-        setMode('verify-email');
-        toast({
-          title: "Email verification required",
-          description: "Please check your email and click the verification link before signing in.",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Welcome back!",
+        description: "You've been signed in successfully.",
+      });
+      
+      // User will be redirected automatically by useEffect
     } catch (error) {
       toast({
         title: "Sign in failed",
@@ -179,26 +170,7 @@ const Auth = () => {
     }
   };
 
-  const resendVerificationEmail = async () => {
-    setLoading(true);
-    try {
-      // This would need to be implemented in the backend
-      // For now, just show a success message
 
-      toast({
-        title: "Verification email sent",
-        description: "Please check your email for the verification link.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const renderSignInForm = () => (
     <form onSubmit={handleSignIn} className="space-y-4">
@@ -237,19 +209,6 @@ const Auth = () => {
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? 'Signing in...' : 'Sign In'}
       </Button>
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
-      </div>
-
-      <GoogleAuthButton />
 
       <div className="text-center space-y-2">
         <button
@@ -323,22 +282,26 @@ const Auth = () => {
         </div>
       </div>
       
+      <div className="space-y-2">
+        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <div className="relative">
+          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            id="confirmPassword"
+            type="password"
+            placeholder="Confirm your password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="pl-10"
+            minLength={6}
+            required
+          />
+        </div>
+      </div>
+      
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? 'Creating account...' : 'Create Account'}
       </Button>
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
-      </div>
-
-      <GoogleAuthButton>Sign up with Google</GoogleAuthButton>
 
       <div className="text-center">
         <button
@@ -400,42 +363,7 @@ const Auth = () => {
     </div>
   );
 
-  const renderVerifyEmailForm = () => (
-    <div className="space-y-4">
-      <Alert>
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Please check your email and click the verification link to activate your account.
-        </AlertDescription>
-      </Alert>
 
-      <div className="text-center space-y-4">
-        <p className="text-sm text-gray-600">
-          Didn't receive the email? Check your spam folder or request a new one.
-        </p>
-        
-        <Button 
-          onClick={resendVerificationEmail} 
-          disabled={loading}
-          variant="outline"
-          className="w-full"
-        >
-          {loading ? 'Sending...' : 'Resend Verification Email'}
-        </Button>
-
-        <button
-          onClick={() => {
-            setMode('signin');
-            setVerificationEmailSent(false);
-          }}
-          className="text-sm text-blue-600 hover:text-blue-800 flex items-center justify-center space-x-1"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to sign in</span>
-        </button>
-      </div>
-    </div>
-  );
 
   const renderResetPasswordForm = () => (
     <div className="space-y-4">
@@ -494,7 +422,6 @@ const Auth = () => {
     switch (mode) {
       case 'signup': return 'Join Uplift';
       case 'forgot-password': return 'Reset Password';
-      case 'verify-email': return 'Verify Your Email';
       case 'reset-password': return 'Set New Password';
       default: return 'Welcome Back';
     }
@@ -504,7 +431,6 @@ const Auth = () => {
     switch (mode) {
       case 'signup': return 'Create your account to start your wellness journey';
       case 'forgot-password': return 'Enter your email to receive a password reset link';
-      case 'verify-email': return 'We\'ve sent you a verification email';
       case 'reset-password': return 'Enter your new password below';
       default: return 'Sign in to continue your wellness journey';
     }
@@ -528,7 +454,6 @@ const Auth = () => {
           {mode === 'signin' && renderSignInForm()}
           {mode === 'signup' && renderSignUpForm()}
           {mode === 'forgot-password' && renderForgotPasswordForm()}
-          {mode === 'verify-email' && renderVerifyEmailForm()}
           {mode === 'reset-password' && renderResetPasswordForm()}
         </CardContent>
       </Card>

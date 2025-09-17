@@ -9,7 +9,7 @@ import { Target, Plus, Check, Trash2, Edit } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
-const WellnessGoals = ({ compact = false }) => {
+const WellnessGoals = ({ compact = false, onNavigate }) => {
   const [goals, setGoals] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
@@ -175,7 +175,13 @@ const WellnessGoals = ({ compact = false }) => {
             <p className="text-sm text-gray-600">No active goals</p>
             <Button 
               size="sm" 
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                if (onNavigate) {
+                  onNavigate();
+                } else {
+                  setShowForm(true);
+                }
+              }}
               className="mt-2"
             >
               Add Goal

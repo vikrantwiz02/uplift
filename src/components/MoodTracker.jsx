@@ -9,7 +9,7 @@ import { apiClient } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 
-const MoodTracker = ({ compact = false }) => {
+const MoodTracker = ({ compact = false, onNavigate }) => {
   const [selectedMood, setSelectedMood] = useState(null);
   const [selectedEmotions, setSelectedEmotions] = useState([]);
   const [notes, setNotes] = useState('');
@@ -111,7 +111,17 @@ const MoodTracker = ({ compact = false }) => {
             </Button>
           ))}
         </div>
-        <Button onClick={handleMoodSubmit} disabled={loading || !selectedMood} className="w-full">
+        <Button 
+          onClick={() => {
+            if (selectedMood && onNavigate) {
+              handleMoodSubmit().then(() => onNavigate());
+            } else if (onNavigate) {
+              onNavigate();
+            }
+          }} 
+          disabled={loading} 
+          className="w-full"
+        >
           {loading ? 'Saving...' : 'Log Mood'}
         </Button>
       </div>

@@ -3,35 +3,23 @@ import crypto from 'crypto';
 import User from '../models/User.js';
 
 const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+  return jwt.sign({ userId }, process.env.JWT_SECRET || 'your-secret-key', {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d'
   });
-};
-
-// Google OAuth success handler
-export const googleAuthSuccess = async (req, res) => {
-  try {
-    const user = req.user;
-    const token = generateToken(user._id.toString());
-    
-    // Redirect to frontend with token
-    const frontendUrl = process.env.CLIENT_URL || 'http://localhost:8081';
-    res.redirect(`${frontendUrl}/auth/success?token=${token}&user=${encodeURIComponent(JSON.stringify({
-      id: user._id,
-      email: user.email,
-      name: user.name,
-      avatar: user.avatar,
-      isVerified: user.isVerified
-    }))}`);
-  } catch (error) {
-    const frontendUrl = process.env.CLIENT_URL || 'http://localhost:8081';
-    res.redirect(`${frontendUrl}/auth?error=authentication_failed`);
-  }
 };
 
 export const register = async (req, res) => {
   try {
     const { email, password, name } = req.body;
+
+    // Validate input
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -39,21 +27,20 @@ export const register = async (req, res) => {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
-    // Create new user
+    // Create new user (account is active immediately)
     const user = new User({
       email,
       password,
-      name,
-      emailConfirmationToken: crypto.randomBytes(32).toString('hex')
+      name
     });
 
     await user.save();
 
-    // Generate token
+    // Generate token for immediate login
     const token = generateToken(user._id.toString());
 
     res.status(201).json({
-      message: 'User created successfully',
+      message: 'Account created successfully! You are now logged in.',
       token,
       user: {
         id: user._id,
@@ -63,6 +50,7 @@ export const register = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -103,12 +91,8 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    req.logout((err) => {
-      if (err) {
-        return res.status(500).json({ error: 'Logout failed' });
-      }
-      res.json({ message: 'Logout successful' });
-    });
+    // Since we're using JWT tokens, logout is handled client-side by removing the token
+    res.json({ message: 'Logout successful' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -201,4 +185,51 @@ export const resetPassword = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+export const checkAuth = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.json({ authenticated: false });
+    }
+
+    const token = authHeader.substring(7);
+    
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      const user = await User.findById(decoded.userId).select('-password');
+      
+      if (!user) {
+        return res.json({ authenticated: false });
+      }
+
+      res.json({
+        authenticated: true,
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          username: user.username,
+          avatar: user.avatar,
+          isVerified: user.isVerified
+        }
+      });
+    } catch (jwtError) {
+      res.json({ authenticated: false });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  // This function is no longer needed but keeping for compatibility
+  res.status(404).json({ error: 'Email verification is not required' });
+};
+
+export const resendVerificationEmail = async (req, res) => {
+  // This function is no longer needed but keeping for compatibility
+  res.status(404).json({ error: 'Email verification is not required' });
 };

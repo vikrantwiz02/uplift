@@ -8,7 +8,7 @@ import { Bot, User, Send, Loader2 } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
-const AIChat = ({ compact = false }) => {
+const AIChat = ({ compact = false, onNavigate }) => {
   const [messages, setMessages] = useState([
     {
       id: '1',
@@ -114,7 +114,11 @@ const AIChat = ({ compact = false }) => {
           <span>Chat with Uplift AI for instant support</span>
         </div>
         <Button 
-          onClick={() => window.location.hash = '#ai-chat'} 
+          onClick={() => {
+            if (onNavigate) {
+              onNavigate();
+            }
+          }} 
           className="w-full"
           variant="outline"
         >

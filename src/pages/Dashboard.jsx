@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Brain, Calendar, Target, Users, BookOpen, Plus, LogOut, Bot, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import MoodTracker from "@/components/MoodTracker";
 import JournalEntry from "@/components/JournalEntry";
 import MeditationTimer from "@/components/MeditationTimer";
@@ -18,6 +18,15 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Handle URL hash changes
+  useEffect(() => {
+    const hash = location.hash.replace('#', '');
+    if (hash && ['overview', 'mood', 'journal', 'meditation', 'goals', 'ai-chat', 'community', 'crisis'].includes(hash)) {
+      setActiveTab(hash);
+    }
+  }, [location.hash]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -41,6 +50,12 @@ const Dashboard = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const switchTab = (tabId) => {
+    setActiveTab(tabId);
+    // Update URL without triggering navigation
+    window.history.pushState(null, '', `#${tabId}`);
   };
 
   const tabs = [
@@ -88,7 +103,7 @@ const Dashboard = () => {
             <Button
               key={tab.id}
               variant={activeTab === tab.id ? "default" : "outline"}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => switchTab(tab.id)}
               className="flex items-center space-x-2"
             >
               <tab.icon className="h-4 w-4" />
@@ -109,7 +124,7 @@ const Dashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <MoodTracker compact={true} />
+                  <MoodTracker compact={true} onNavigate={() => switchTab('mood')} />
                 </CardContent>
               </Card>
 
@@ -121,7 +136,7 @@ const Dashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <MeditationTimer compact={true} />
+                  <MeditationTimer compact={true} onNavigate={() => switchTab('meditation')} />
                 </CardContent>
               </Card>
 
@@ -133,7 +148,7 @@ const Dashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <WellnessGoals compact={true} />
+                  <WellnessGoals compact={true} onNavigate={() => switchTab('goals')} />
                 </CardContent>
               </Card>
 
@@ -145,7 +160,7 @@ const Dashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <AIChat compact={true} />
+                  <AIChat compact={true} onNavigate={() => switchTab('ai-chat')} />
                 </CardContent>
               </Card>
 
@@ -157,7 +172,7 @@ const Dashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CommunityForum compact={true} />
+                  <CommunityForum compact={true} onNavigate={() => switchTab('community')} />
                 </CardContent>
               </Card>
 
@@ -174,7 +189,7 @@ const Dashboard = () => {
                   </p>
                   <Button 
                     size="sm" 
-                    onClick={() => setActiveTab('crisis')}
+                    onClick={() => switchTab('crisis')}
                     className="bg-red-600 hover:bg-red-700"
                   >
                     Get Help Now

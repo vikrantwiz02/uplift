@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-=======
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-
->>>>>>> eada28ca4e6fb2a278fce958938396610a60e6bf
 
 class ApiClient {
   constructor(baseURL) {
@@ -245,4 +240,4 @@ class ApiClient {
   }
 }
 
-export const apiClient = new ApiClient(apiUrl);
+export const apiClient = new ApiClient(API_BASE_URL);

@@ -94,10 +94,7 @@ Your role is to be a supportive companion, offering guidance, encouragement, and
 
     res.json({
       response: aiResponse,
-<<<<<<< HEAD:src/controllers/aiController.js
       message: aiResponse, // Keep both for compatibility
-=======
->>>>>>> eada28ca4e6fb2a278fce958938396610a60e6bf:server/src/controllers/aiController.js
       timestamp: new Date().toISOString()
     });
 

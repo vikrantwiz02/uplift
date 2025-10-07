@@ -148,7 +148,7 @@ const AIChat = ({ compact = false, onNavigate }) => {
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
               >
                 <div
-                  className={`max-w-[85%] min-w-[200px] rounded-2xl p-4 shadow-sm ${
+                  className={`max-w-[85%] w-auto rounded-2xl p-4 shadow-sm overflow-hidden ${
                     message.role === 'user'
                       ? 'bg-blue-500 text-white rounded-br-md'
                       : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md'
@@ -165,8 +165,8 @@ const AIChat = ({ compact = false, onNavigate }) => {
                         <User className="h-5 w-5 text-white" />
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere hyphens-auto">{message.content}</p>
                       <p className={`text-xs mt-2 ${
                         message.role === 'user' ? 'text-blue-100' : 'text-gray-400'
                       }`}>

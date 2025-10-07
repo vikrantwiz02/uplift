@@ -77,5 +77,11 @@ app.use((req, res) => {
 });
 
 export default (req, res) => {
+  // Modify the request URL to remove the /api prefix for proper routing
+  const originalUrl = req.url;
+  if (originalUrl.startsWith('/api')) {
+    req.url = originalUrl.substring(4);
+  }
+  
   return app(req, res);
 };

@@ -100,6 +100,14 @@ Your role is to be a supportive companion, offering guidance, encouragement, and
 
   } catch (error) {
     console.error('AI Chat Error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      hasGeminiKey: !!process.env.GEMINI_API_KEY,
+      geminiKeyLength: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0
+    });
     
     if (error.response?.status === 429) {
       return res.status(429).json({ 
@@ -107,14 +115,21 @@ Your role is to be a supportive companion, offering guidance, encouragement, and
       });
     }
     
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       return res.status(500).json({ 
-        error: 'AI service authentication failed. Please try again later.' 
+        error: 'AI service authentication failed. Please check the API key configuration.' 
+      });
+    }
+
+    if (error.response?.status === 400) {
+      return res.status(500).json({ 
+        error: 'Invalid request to AI service. Please try again.' 
       });
     }
 
     res.status(500).json({ 
-      error: 'I apologize, but I\'m having trouble responding right now. Please try again in a moment.' 
+      error: 'I apologize, but I\'m having trouble responding right now. Please try again in a moment.',
+      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

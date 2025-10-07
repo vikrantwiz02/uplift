@@ -3,7 +3,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 class ApiClient {
   constructor(baseURL) {
     this.baseURL = baseURL;
-    this.token = localStorage.getItem('auth_token');
+    this.token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
   }
 
   getHeaders() {
@@ -12,7 +12,7 @@ class ApiClient {
     };
 
     // Always get the most current token from localStorage or instance
-    const currentToken = this.token || localStorage.getItem('auth_token');
+    const currentToken = this.token || (typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null);
     if (currentToken) {
       headers.Authorization = `Bearer ${currentToken}`;
     }
@@ -44,10 +44,12 @@ class ApiClient {
 
   setToken(token) {
     this.token = token;
-    if (token) {
-      localStorage.setItem('auth_token', token);
-    } else {
-      localStorage.removeItem('auth_token');
+    if (typeof window !== 'undefined') {
+      if (token) {
+        localStorage.setItem('auth_token', token);
+      } else {
+        localStorage.removeItem('auth_token');
+      }
     }
   }
 

@@ -1,6 +1,6 @@
-import { connectDatabase } from '../../src/config/database.js';
-import { getMoodEntries, createMoodEntry } from '../../src/controllers/moodController.js';
-import { authenticate } from '../../src/middleware/auth.js';
+import { connectDatabase } from '../../../src/config/database.js';
+import { updateWellnessGoal, deleteWellnessGoal } from '../../../src/controllers/goalsController.js';
+import { authenticate } from '../../../src/middleware/auth.js';
 import cors from 'cors';
 
 // CORS configuration
@@ -41,16 +41,20 @@ export default async function handler(req, res) {
       });
     });
 
+    // Extract ID from query params
+    const { id } = req.query;
+    req.params = { id }; // Add id to req.params for controller compatibility
+
     // Handle different HTTP methods
-    if (req.method === 'GET') {
-      await getMoodEntries(req, res);
-    } else if (req.method === 'POST') {
-      await createMoodEntry(req, res);
+    if (req.method === 'PUT') {
+      await updateWellnessGoal(req, res);
+    } else if (req.method === 'DELETE') {
+      await deleteWellnessGoal(req, res);
     } else {
       return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Mood API error:', error);
+    console.error('Goals ID API error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 }

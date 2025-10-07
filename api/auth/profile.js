@@ -1,6 +1,6 @@
-import { connectDatabase } from '../../src/config/database.js';
-import { getMoodEntries, createMoodEntry } from '../../src/controllers/moodController.js';
-import { authenticate } from '../../src/middleware/auth.js';
+import { connectDatabase } from '../../../src/config/database.js';
+import { getProfile } from '../../../src/controllers/authController.js';
+import { authenticate } from '../../../src/middleware/auth.js';
 import cors from 'cors';
 
 // CORS configuration
@@ -27,6 +27,11 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  // Only allow GET requests
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
     // Connect to database
     await connectDatabase();
@@ -41,16 +46,10 @@ export default async function handler(req, res) {
       });
     });
 
-    // Handle different HTTP methods
-    if (req.method === 'GET') {
-      await getMoodEntries(req, res);
-    } else if (req.method === 'POST') {
-      await createMoodEntry(req, res);
-    } else {
-      return res.status(405).json({ error: 'Method not allowed' });
-    }
+    // Call the getProfile controller
+    await getProfile(req, res);
   } catch (error) {
-    console.error('Mood API error:', error);
+    console.error('Profile API error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 }

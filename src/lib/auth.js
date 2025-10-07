@@ -5,13 +5,17 @@ class AuthManager {
     this.listeners = [];
     this.state = {
       user: null,
-      token: localStorage.getItem('auth_token'),
+      token: typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null,
       isAuthenticated: false
     };
-    this.initializeAuth();
+    if (typeof window !== 'undefined') {
+      this.initializeAuth();
+    }
   }
 
   async initializeAuth() {
+    if (typeof window === 'undefined') return;
+    
     const token = localStorage.getItem('auth_token');
     if (token) {
       try {
@@ -24,6 +28,7 @@ class AuthManager {
         });
       } catch (error) {
         // Token is invalid, clear it
+        console.log('Token validation failed, clearing auth state');
         this.signOut();
       }
     }

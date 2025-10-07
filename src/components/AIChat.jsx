@@ -145,28 +145,32 @@ const AIChat = ({ compact = false, onNavigate }) => {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
+                  className={`max-w-[85%] min-w-[200px] rounded-2xl p-4 shadow-sm ${
                     message.role === 'user'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-800'
+                      ? 'bg-blue-500 text-white rounded-br-md'
+                      : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md'
                   }`}
                 >
-                  <div className="flex items-start space-x-2">
+                  <div className="flex items-start space-x-3">
                     {message.role === 'assistant' && (
-                      <Bot className="h-4 w-4 mt-0.5 text-blue-500" />
+                      <div className="flex-shrink-0">
+                        <Bot className="h-5 w-5 text-blue-500" />
+                      </div>
                     )}
                     {message.role === 'user' && (
-                      <User className="h-4 w-4 mt-0.5 text-white" />
+                      <div className="flex-shrink-0">
+                        <User className="h-5 w-5 text-white" />
+                      </div>
                     )}
-                    <div className="flex-1">
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                      <p className={`text-xs mt-1 ${
-                        message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
+                      <p className={`text-xs mt-2 ${
+                        message.role === 'user' ? 'text-blue-100' : 'text-gray-400'
                       }`}>
-                        {message.timestamp.toLocaleTimeString()}
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                   </div>
@@ -174,10 +178,12 @@ const AIChat = ({ compact = false, onNavigate }) => {
               </div>
             ))}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-lg p-3">
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <Loader2 className="h-4 w-4 animate-spin" />
+              <div className="flex justify-start mb-4">
+                <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-md p-4 shadow-sm">
+                  <div className="flex items-center space-x-3 text-gray-600">
+                    <div className="flex-shrink-0">
+                      <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+                    </div>
                     <span className="text-sm">Uplift AI is thinking...</span>
                   </div>
                 </div>

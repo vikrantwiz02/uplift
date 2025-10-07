@@ -129,7 +129,7 @@ const AIChat = ({ compact = false, onNavigate }) => {
   }
 
   return (
-    <Card className="h-[600px] flex flex-col">
+    <Card className="h-[600px] flex flex-col overflow-hidden">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Bot className="h-5 w-5 text-blue-500" />
@@ -139,23 +139,22 @@ const AIChat = ({ compact = false, onNavigate }) => {
           Your personal wellness companion for mental health support and guidance
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col space-y-4">
+      <CardContent className="flex-1 flex flex-col space-y-4 overflow-hidden">
         <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
+          <div className="space-y-4 px-1">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl p-4 shadow-sm ${
+                  className={`max-w-[85%] min-w-0 rounded-2xl p-4 shadow-sm ${
                     message.role === 'user'
                       ? 'bg-blue-500 text-white rounded-br-md'
                       : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md'
                   }`}
-                  style={{ wordBreak: 'break-word' }}
                 >
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-3 min-w-0">
                     {message.role === 'assistant' && (
                       <div className="flex-shrink-0">
                         <Bot className="h-5 w-5 text-blue-500" />
@@ -166,8 +165,8 @@ const AIChat = ({ compact = false, onNavigate }) => {
                         <User className="h-5 w-5 text-white" />
                       </div>
                     )}
-                    <div className="flex-1">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{message.content}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
                       <p className={`text-xs mt-2 ${
                         message.role === 'user' ? 'text-blue-100' : 'text-gray-400'
                       }`}>
